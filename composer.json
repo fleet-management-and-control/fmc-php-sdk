@@ -1,0 +1,19 @@
+{
+	"name" : "mapon/mapon-php-sdk",
+	"description" : "Mapon API PHP SDK",
+	"authors" : [
+		{
+			"name" : "Mapon",
+			"email" : "info@mapon.com"
+		}
+	],
+	"require" : {
+		"php" : ">=5.4.0"
+	},
+	"autoload" : {
+		"psr-0" : {
+			"Mapon" : "src/"
+		}
+	},
+	"minimum-stability" : "stable"
+}

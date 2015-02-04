@@ -1,18 +1,17 @@
 {
-	"name" : "mapon/mapon-php-sdk",
-	"description" : "Mapon API PHP SDK",
+	"name" : "fleet-management-and-control/fmc-php-sdk",
+	"description" : "FMC PHP SDK",
 	"authors" : [
 		{
-			"name" : "Mapon",
-			"email" : "info@mapon.com"
+			"name" : "Fleet Management & Control"
 		}
 	],
 	"require" : {
-		"php" : ">=5.4.0"
+		"php" : ">=5.3.0"
 	},
 	"autoload" : {
 		"psr-0" : {
-			"Mapon" : "src/"
+			"FMC" : "src/"
 		}
 	},
 	"minimum-stability" : "stable"

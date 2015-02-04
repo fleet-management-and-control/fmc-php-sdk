@@ -1,11 +1,12 @@
 <?php
-use Mapon\MaponApi;
+use FMC\FmcApi;
 
 include __DIR__ . '/../vendor/autoload.php';
 
 $apiKey = 'YOUR-API-KEY';
+$apiUrl = 'https://your-api-url';
 
-$api = new MaponApi($apiKey);
+$api = new FmcApi($apiKey, $apiUrl);
 
 $result = null;
 
@@ -15,7 +16,7 @@ try{
 		'till' => '2013-03-08T23:59:59Z',
 		'include' => array('polyline', 'speed')
 	));
-}catch(\Mapon\ApiException $e){
+}catch(\FMC\ApiException $e){
 	echo 'API Error! Code: ' . $e->getCode() . ' Message: ' . $e->getMessage();
 }
 

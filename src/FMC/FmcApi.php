@@ -1,20 +1,27 @@
 <?php
-namespace Mapon;
+namespace FMC;
 
 use stdClass;
 
-class MaponApi{
+class FmcApi{
 
+	/**
+	 * @var string Your API key
+	 */
 	public $apiKey;
 
-	public $apiUrl = 'https://mapon.com/api/v1/';
+	/**
+	 * @var string API URL
+	 */
+	public $apiUrl;
 
 	public $libVersion = 1.0;
 
 	public $debug = false;
 
-	public function __construct($apiKey){
+	public function __construct($apiKey, $apiUrl){
 		$this->apiKey = $apiKey;
+		$this->apiUrl = $apiUrl;
 	}
 
 	/**

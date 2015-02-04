@@ -1,6 +1,6 @@
 <?php
 
-namespace Mapon;
+namespace FMC;
 
 class ApiException extends \Exception{
 }

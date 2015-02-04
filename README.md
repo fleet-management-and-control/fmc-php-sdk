@@ -1,8 +1,6 @@
-# Mapon API PHP SDK
+# FMC PHP SDK
 
-Library to help working with Mapon API.
-
-More information - http://www.mapon.com/api/
+Library to help working with FMC API.
 
 Usage with composer
 ----
@@ -10,7 +8,7 @@ Usage with composer
 1. Add this package to your composer.json
 
     ```php
-    "mapon/mapon-php-sdk": "~1.0"
+    "fleet-management-and-control/fmc-php-sdk": "~1.0"
     ```
 
 2. Update packages by running

@@ -19,4 +19,4 @@ Usage with composer
 
 3. Use library as shown in [examples]
 
-[examples]: /example/example.php
+[examples]: /examples/example.php

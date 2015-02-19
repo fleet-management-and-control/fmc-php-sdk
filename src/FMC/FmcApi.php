@@ -11,7 +11,7 @@ class FmcApi{
 	public $apiKey;
 
 	/**
-	 * @var string API URL
+	 * @var string API URL, with trailing slash
 	 */
 	public $apiUrl;
 
@@ -19,51 +19,36 @@ class FmcApi{
 
 	public $debug = false;
 
+	/**
+	 * @param string $apiKey Your API key
+	 * @param string $apiUrl Your API url, with trailing slash
+	 */
 	public function __construct($apiKey, $apiUrl){
 		$this->apiKey = $apiKey;
-		$this->apiUrl = $apiUrl;
+		$this->apiUrl = rtrim($apiUrl, '/') . '/';
 	}
 
 	/**
-	 * @param string $type
-	 * @param string $method
+	 * @param string $requestMethod
+	 * @param string $apiMethod
 	 * @param array $getData
 	 * @param array $postData
 	 * @return stdClass
 	 * @throws ApiException
 	 */
-	public function callMethod($type, $method, $getData = array(), $postData = array()){
-
+	public function callMethod($requestMethod, $apiMethod, $getData = array(), $postData = array()){
 		if(!function_exists('json_decode')){
 			throw new ApiException('Please enable php json extension');
 		}
 
-		$getData['key'] = $this->apiKey;
-		$getData['_phplibv'] = $this->libVersion;
-
-		$to_call = $this->apiUrl . $method . '.json' . '?' . http_build_query($getData, '', '&');
-
-		$context_opts = array(
-			'http' => array(
-				'method' => strtoupper($type)
-			)
+		$getData += array(
+			'key' => $this->apiKey,
+			'_phplibv' => $this->libVersion,
 		);
 
-		if($type == 'post'){
-			$postData = http_build_query($postData, '', '&');
+		$url = $this->apiUrl . $apiMethod . '.json';
 
-			$context_opts['http']['header'] = "Content-Type: application/x-www-form-urlencoded\r\n";
-			$context_opts['http']['header'] .= "Content-Length: " . strlen($postData) . "\r\n";
-			$context_opts['http']['content'] = $postData;
-		}
-
-		$context = stream_context_create($context_opts);
-
-		$res = file_get_contents($to_call, false, $context);
-
-		if($res === false){
-			throw new ApiException('Error while requesting API');
-		}
+		$res = $this->getUrlContent($url, $requestMethod, $getData, $postData);
 
 		$json = json_decode($res);
 
@@ -82,31 +67,72 @@ class FmcApi{
 	}
 
 	/**
+	 * @param string $urlDomain Domain + path WITHOUT query part
+	 * @param string $requestMethod get or post
+	 * @param array $queryData
+	 * @param array $postData
+	 * @return mixed
+	 * @throws ApiException
+	 */
+	private function getUrlContent($urlDomain, $requestMethod, array $queryData = array(), array $postData = array()){
+		$isPost = $requestMethod == 'post';
+		$urlDomain .= '?' . http_build_query($queryData);
+
+		$ch = curl_init();
+
+		curl_setopt($ch, CURLOPT_URL, $urlDomain);
+		curl_setopt($ch, CURLOPT_POST, $isPost ? 1 : 0);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+		if($isPost){
+			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+		}
+
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+		$output = curl_exec($ch);
+		$error = curl_error($ch);
+
+		curl_close($ch);
+
+		if(!$output){
+			throw new ApiException('Could not HTTP request: ' . var_export($error, true));
+		}
+
+		return $output;
+	}
+
+	/**
 	 * Call GET API request
 	 * @param $action
-	 * @param array $get_data
+	 * @param array $queryData
 	 * @return stdClass
 	 * @throws ApiException
 	 */
-	public function get($action, $get_data = array()){
-		return $this->callMethod('get', $action, $get_data);
+	public function get($action, $queryData = array()){
+		return $this->callMethod('get', $action, $queryData);
 	}
 
 	/**
 	 * Call POST API request
 	 * @param $action
-	 * @param array $post_data
+	 * @param array $postData
 	 * @return stdClass
 	 * @throws ApiException
 	 */
-	public function post($action, $post_data = array()){
-		return $this->callMethod('post', $action, array(), $post_data);
+	public function post($action, $postData = array()){
+		return $this->callMethod('post', $action, array(), $postData);
 	}
 
 	/**
 	 * Based on:
 	 * http://facstaff.unca.edu/mcmcclur/GoogleMaps/EncodePolyline/decode.js
 	 * http://code.google.com/apis/maps/documentation/polylinealgorithm.html
+	 *
+	 * @param $encoded
+	 * @param null $speed
+	 * @param null $startTime
+	 * @return array
 	 */
 	public function decodePolyline($encoded, $speed = null, $startTime = null){
 		if(!is_null($speed)){
